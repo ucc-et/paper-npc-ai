@@ -19,36 +19,24 @@ However, artificial intelligence (AI) in videogames primarily pursues goals that
 This field of research is currently experiencing rapid change. Handcrafted systems that were developed in the 1990s and 2000s still shape the majority of video games today, and they stand side by side with machine learning approaches and large language models \cite{gallotta2024}. This development raised the question of which methods are suitable for which tasks and what trade-opffs are associated with their use.
 
 \subsection{What Makes a Good NPC?}
-\begin{itemize}
-  \item \emph{Believability}: the character appears to have its own goals,
-        emotions and awareness, even if its intelligence is
-        limited~\cite{bates1994,loyall1997}.
-  \item Warpefelt and Verhagen describe believability as fitting the
-        player's expectations for that kind of character in that
-        world~\cite{warpefelt2017}.
-  \item \emph{Fun and fairness}: an enemy should be challenging but
-        beatable; perfect aim is rarely enjoyable~\cite{sweetser2005}.
-  \item \emph{Designer control}: game designers need to shape and predict
-        what NPCs do so that levels and stories work as intended.
-  \item \emph{Efficiency}: AI shares a small slice of each frame with
-        graphics, physics and audio, often only a few
-        milliseconds~\cite{nareyek2004}.
-  \item These goals often conflict, which is a recurring theme of this
-        review (see Section~\ref{sec:tradeoffs}).
-\end{itemize}
+
+The "quality" of an NPC can't be determined by a single criterion. 
+In literature and in practice, multiple criteria have emerged that mus be considered together.
+
+The first criterion is \emph{believability}. A character is considered believable if it gives the impression of having its own goals, emotions, and is aware of its surroundings \cite{bates1994,loyall1997}. Warpefelt and Verhagen expand on this concept by desccribing believability as "consistency with the expectations that players have of a specific type of character in a specific game world" \cite{warpefelt2017}. A villager in a fantasy role-playing game must behave differently than a super hero in a adventure game in order to come across as convincing in each case. 
+
+The second criterion involves \emph{gameplay fun and fairness}. An opponent should be challenging but beatable; perfect accuracy or complete knowledge of the players' positions may be technically easy to implement, but is rarely perceived as entertaining \cite{sweetser2005}. Good game AI is therefore often deliberately flawed.
+
+Thirdly, development teams need \emph{creative control} over the behavior of their characters. To ensure that levels, missions, and narratives function as intended, it is important for the NPC to be predictable and controllable in a given situation.
+
+Fourth, \emph{efficiency} is important. The AI shares the available processing power for each individual frame with graphics, physics and audio \cite{nareyek2004}. Methods that are aceptable for a single character can quickly reach their limits when dealing with hundreds of NPCs being rendered and calculated at the same time.
+These goals are often in conflict with one another. For example, greater freedom can enhance credibility, but at the same time reduce the creative control. This tension runs as a recurring theme throughout the entire work and is systematically discussed in Section \ref{sec:tradeoffs}.
 
 \subsection{Scope and Contributions}
-\begin{itemize}
-  \item Focus on \emph{decision making} (what an NPC does) and \emph{spatial
-        reasoning} (where and how it moves); animation and graphics are out
-        of scope.
-  \item Covers commercial techniques documented by industry developers as
-        well as academic research.
-  \item Contributions: (1) an accessible overview of the main NPC AI
-        techniques, (2) a side-by-side comparison along shared criteria, and
-        (3) a discussion of current experiments with learning and LLM-based
-        NPCs.
-\end{itemize}
+
+This paper focuses on two core aspects of NPC AI: \emph{decision-making} and \emph{spatial reasoning}. The first is the question of \emph{what} a character does, and the latter asks the question of \emph{where} and \emph{how} it moves. Animation, graphics and other visual aspects fall outside of this papers' scope. Both methods, which have been documented by game developers, and have been results of academic research will be considered.
+
+The contribution of this paper is divided into three parts: First it provides an accessible overview of the central methods of NPC AI. Second, it compares these methods based on common criteria. Third, it diescusses current experiments with machine learning and LLM-based NPCs and assesses their potential as well as their limitations. 
 
 \subsection{Methodology}
 \begin{itemize}
