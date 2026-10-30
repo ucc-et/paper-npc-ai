@@ -1,30 +1,22 @@
 \ifCLASSOPTIONcompsoc
-\IEEEraisesectionheading{\section{Introduction}\label{sec:introduction}}
+\IEEEraisesectionheading{\section{Einleitung}\label{sec:introduction}}
 \else
-\section{Introduction}
+\section{Einleitung}
 \label{sec:introduction}
 \fi
 
-\IEEEPARstart{T}{his} section is currently an outline. Each bullet is meant
-to become one or two sentences of running text.
+\begin{otherlanguage}{ngerman}
+
+\textbf{Non-Player Characters} (short. NPC) inhabit nearly every video game world. From enemies, to sidekicks, merchants or anonymous crowds: they fundamentally shape how players experience and engage with a virutal world. This paper presents a comparative overview over the most important methods, that are used to control the behavior of NPCs. Current development from machine learning and large language models will be placed into context.
 
 \subsection{Motivation}
-\begin{itemize}
-  \item Non-player characters (NPCs) are every character in a game that the
-        player does not control: enemies, companions, shopkeepers, crowds.
-  \item They largely decide whether a game world feels alive or empty; a
-        guard who walks into a wall breaks immersion faster than a weak
-        texture.
-  \item Game AI differs from academic AI: the goal is not to win or to be
-        optimal, but to create an entertaining and believable experience for
-        the player~\cite{yannakakis2018,millington2009}.
-  \item Laird and van Lent called interactive games the ``killer
-        application'' for human-level AI because they demand real-time,
-        social and adaptive behavior~\cite{laird2001}.
-  \item The field is changing fast: hand-authored systems from the 1990s and
-        2000s now sit next to machine learning and large language models
-        (LLMs)~\cite{gallotta2024}.
-\end{itemize}
+
+Every character within a game, that is not controlled by a player is classified as a NPC. These include enemy units as well as allies and pedestrians who bring a city to life. Especially these characters play a crucial role in determining whether a game world feels alive or empty. A guard who runs into a wall repeatedly, will destroy the immersion for quicker than a blurry texture. That mis-behavior shatters the illusion of a world that acts on its own.
+
+However, artificial intelligence (AI) in videogames primarily pursues goals that differ from those of academic AI research. While the focus there is often on finding optimal solutions or deafeating human opponents, the task of game AI is to create an experience, that is entertaining and somewhat believable for players \cite{yannakakis2018,millington2009}. Therefore, an opponent that always makes the best possible decision is not neccessarily a good opponent in terms of the players experience. Games also have high demands on AI systems: Laird and van Lent described interactive compiter games as the \emph{killer application} for human level AI, because they need behavior that occurs in real time, allows social interaction, and adapt to changing situations \cite{laird2001}.
+%TODO: check if there is a more current research to this.
+
+This field of research is currently experiencing rapid change. Handcrafted systems that were developed in the 1990s and 2000s still shape the majority of video games today, and they stand side by side with machine learning approaches and large language models \cite{gallotta2024}. This development raised the question of which methods are suitable for which tasks and what trade-opffs are associated with their use.
 
 \subsection{What Makes a Good NPC?}
 \begin{itemize}
@@ -80,3 +72,4 @@ to become one or two sentences of running text.
         learning and LLMs.
   \item Section~\ref{sec:conclusion}: conclusion and outlook.
 \end{itemize}
+\end{otherlanguage}
