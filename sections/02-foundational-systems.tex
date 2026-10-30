@@ -1,1 +1,73 @@
 \section{Foundational Systems}
+\label{sec:foundational}
+
+\subsection{A Short History of NPC Behavior}
+\begin{itemize}
+  \item Early arcade games used fixed patterns: each ghost in a classic
+        maze game follows a simple, distinct chasing rule, which already
+        creates the impression of personality~\cite{millington2009}.
+  \item Limited memory and processing power meant behavior had to be cheap
+        and predictable.
+  \item As 3D games grew in the late 1990s and 2000s, NPCs needed to react
+        to a much richer world: sound, cover, teammates and the player's
+        tactics~\cite{laird2001}.
+  \item Key idea for the reader: most later techniques are answers to the
+        limits of these early approaches.
+\end{itemize}
+
+\subsection{Scripting}
+\begin{itemize}
+  \item Designers write explicit instructions (``when the player enters the
+        room, play this line and attack'').
+  \item Usually done in a lightweight scripting language embedded in the
+        engine~\cite{millington2009}.
+  \item Strength: full control and perfect fit for story moments and
+        cutscenes.
+  \item Weakness: brittle; anything the designer did not anticipate breaks
+        the illusion. Does not scale to open worlds.
+  \item Still widely used today for set pieces, often layered on top of
+        autonomous AI.
+\end{itemize}
+
+\subsection{Finite-State Machines}
+\begin{itemize}
+  \item An NPC is always in exactly one \emph{state} (e.g.\ Patrol, Chase,
+        Attack, Flee); \emph{transitions} switch between states when a
+        condition is met~\cite{buckland2005,millington2009}.
+  \item Easy to understand and draw as a diagram, which makes them popular
+        with designers.
+  \item \textbf{[Figure idea]} Simple guard FSM with four states and arrows
+        labelled ``sees player'', ``loses player'', ``low health''.
+  \item Problem: the number of transitions grows quickly as states are
+        added (``state explosion''), and the logic becomes hard to
+        maintain~\cite{millington2009}.
+  \item Behavior that should be shared across states (e.g.\ reacting to a
+        grenade) has to be copied into every state.
+\end{itemize}
+
+\subsection{Hierarchical State Machines}
+\begin{itemize}
+  \item States can contain their own sub-machines, e.g.\ a ``Combat''
+        state that internally switches between ``Shoot'' and ``Reload''.
+  \item Reduces duplication and lets common reactions be handled at a
+        higher level~\cite{millington2009}.
+  \item Still requires designers to wire transitions by hand, which limits
+        how far it scales.
+\end{itemize}
+
+\subsection{Rule-Based Systems}
+\begin{itemize}
+  \item Behavior expressed as a list of ``if \ldots{} then \ldots'' rules
+        that are checked against the current situation~\cite{russell2021}.
+  \item Common in strategy games for economic and military decisions.
+  \item Flexible, but conflicting rules and rule ordering become hard to
+        debug as the rule base grows.
+\end{itemize}
+
+\subsection{Summary}
+\begin{itemize}
+  \item Foundational systems are cheap, predictable and designer-friendly.
+  \item Their main weakness is scalability: complexity grows faster than
+        the behavior they produce.
+  \item This motivated the modular architectures in the next section.
+\end{itemize}

@@ -1,1 +1,99 @@
 \section{Modern Architectures}
+\label{sec:modern}
+
+\subsection{Behavior Trees}
+\begin{itemize}
+  \item Popularized by the AI of \emph{Halo~2}, presented by Damian Isla at
+        GDC 2005~\cite{isla2005}.
+  \item Behavior is organized as a tree: the NPC checks branches in order
+        of priority each update and runs the first one that applies.
+  \item Two basic building blocks, explained without code:
+        \emph{sequences} (do these steps in order, stop on failure) and
+        \emph{selectors} (try these options until one works).
+  \item \textbf{[Figure idea]} Small tree for a soldier: ``Take cover if
+        under fire'' $\rightarrow$ ``Attack if enemy visible''
+        $\rightarrow$ ``Patrol''.
+  \item Strengths: modular, reusable subtrees, easy to extend without
+        rewiring everything; now standard in major engines such as Unreal
+        Engine~\cite{colledanchise2018}.
+  \item Also adopted in robotics, which shows the idea is general beyond
+        games~\cite{colledanchise2018}.
+  \item Weaknesses: large trees become hard to read; the NPC only reacts,
+        it does not plan ahead.
+  \item Research has even used evolutionary algorithms to generate behavior
+        trees automatically, e.g.\ for the strategy game
+        \emph{DEFCON}~\cite{lim2010}.
+\end{itemize}
+
+\subsection{Goal-Oriented Action Planning (GOAP)}
+\begin{itemize}
+  \item Introduced to games by Jeff Orkin for \emph{F.E.A.R.}
+        (2005)~\cite{orkin2006}, based on the classic STRIPS planner from
+        academic AI~\cite{fikes1971}.
+  \item Instead of scripting \emph{how} to behave, designers give the NPC
+        \emph{goals} (e.g.\ ``kill enemy'') and \emph{actions} with
+        preconditions and effects (e.g.\ ``reload'' requires ammo, results
+        in loaded weapon).
+  \item The planner searches for a sequence of actions that reaches the
+        goal, similar to finding a route on a map.
+  \item Result: emergent tactics such as flanking or knocking over tables
+        for cover, which players perceived as very intelligent.
+  \item Orkin's title ``Three States and a Plan'' highlights that the FSM
+        shrank to three states while planning did the rest~\cite{orkin2006}.
+  \item Trade-offs: planning costs more processing time, and designers have
+        less direct control over the exact outcome.
+\end{itemize}
+
+\subsection{Hierarchical Task Network (HTN) Planning}
+\begin{itemize}
+  \item Plans by breaking a big task (``defend the base'') into smaller
+        subtasks until only simple actions remain~\cite{erol1994}.
+  \item Encodes designer knowledge about \emph{how} tasks are usually done,
+        so it is faster and more predictable than GOAP~\cite{humphreys2013}.
+  \item Used in titles such as \emph{Killzone~2} and the
+        \emph{Transformers} games~\cite{humphreys2013}.
+  \item Good fit for squad behavior and long-term plans.
+\end{itemize}
+
+\subsection{Utility AI}
+\begin{itemize}
+  \item Every possible action receives a score (``utility'') based on the
+        current situation; the NPC picks the highest-scoring
+        action~\cite{mark2009}.
+  \item Example: a character's ``eat'' score rises as hunger grows, while
+        ``flee'' rises with nearby danger. Life simulations such as
+        \emph{The Sims} are a well-known use.
+  \item Produces smooth, context-sensitive behavior instead of hard
+        switches.
+  \item Variants such as dual-utility reasoning add randomness among the
+        top options to avoid robotic predictability~\cite{dill2015}.
+  \item Challenge: tuning the scoring curves takes experience and
+        playtesting~\cite{mark2009}.
+\end{itemize}
+
+\subsection{AI Directors and Drama Management}
+\begin{itemize}
+  \item Some systems control the \emph{overall experience} rather than a
+        single NPC.
+  \item The AI Director in \emph{Left~4~Dead} adjusts enemy spawns and
+        intensity based on how stressed the players
+        are~\cite{booth2009}.
+  \item Related to dynamic difficulty adjustment, which keeps the game in
+        the player's ``flow'' zone~\cite{hunicke2005,sweetser2005}.
+  \item Interactive drama such as \emph{Fa\c{c}ade} uses a drama manager to
+        steer a story with two conversational NPCs~\cite{mateas2005}.
+  \item Social simulation systems such as \emph{Versu} model
+        relationships and social norms between
+        characters~\cite{evans2014}.
+\end{itemize}
+
+\subsection{Hybrid Architectures}
+\begin{itemize}
+  \item Real games rarely use one technique alone: a typical setup is a
+        behavior tree for structure, utility scores for choosing between
+        options, and scripts for story moments~\cite{rabin2013}.
+  \item Layered ``brain'' designs separate perception, memory and action
+        selection~\cite{isla2001}.
+  \item Key message: the techniques are tools that complement each other,
+        not competitors.
+\end{itemize}

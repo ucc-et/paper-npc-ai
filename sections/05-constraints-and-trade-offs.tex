@@ -1,1 +1,91 @@
 \section{Constraints and Trade-Offs}
+\label{sec:tradeoffs}
+
+\subsection{Comparison Criteria}
+\begin{itemize}
+  \item Compare the techniques from Sections~\ref{sec:foundational}
+        and~\ref{sec:modern} along five criteria: designer control,
+        scalability, adaptivity, computational cost, and ease of debugging.
+  \item Ratings are qualitative and based on the reviewed
+        literature~\cite{millington2009,yannakakis2018,rabin2013}.
+  \item Table~\ref{tab:comparison} summarizes the result (draft ratings,
+        to be checked while writing).
+\end{itemize}
+
+\begin{table}[!t]
+\renewcommand{\arraystretch}{1.3}
+\caption{Draft Qualitative Comparison of NPC Decision-Making Techniques}
+\label{tab:comparison}
+\centering
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{lccccc}
+\hline
+Technique & Control & Scale & Adapt. & Cost & Debug \\
+\hline
+Scripting      & high & low  & low  & low  & high \\
+FSM / HFSM     & high & low--med & low & low & high \\
+Behavior tree  & high & high & med  & low  & med  \\
+GOAP           & med  & high & high & med--high & low \\
+HTN            & med--high & high & med & med & med \\
+Utility AI     & med  & high & high & low--med & low--med \\
+Learned (RL)   & low  & med  & high & high$^{*}$ & low \\
+LLM-based      & low  & med  & high & high & low \\
+\hline
+\end{tabular}
+
+\vspace{2pt}
+{\footnotesize $^{*}$Mostly during training.}
+\end{table}
+
+\subsection{Performance Budgets}
+\begin{itemize}
+  \item Games run at 30--60 frames per second or more; AI gets only a small
+        share of each frame~\cite{nareyek2004}.
+  \item Common tricks: update distant NPCs less often, spread work across
+        frames, use simpler AI for background characters (``level of
+        detail'' for AI)~\cite{millington2009}.
+  \item This explains why expensive techniques are often limited to a few
+        important characters.
+\end{itemize}
+
+\subsection{Designer Control versus Autonomy}
+\begin{itemize}
+  \item More autonomous AI (planning, learning) can surprise players in
+        good ways, but also in bad ways that break levels or
+        stories~\cite{orkin2006}.
+  \item Designers need predictable results to build missions and
+        balance difficulty.
+  \item Most studios therefore choose ``authored autonomy'': AI decides
+        within boundaries set by designers.
+\end{itemize}
+
+\subsection{Believability versus Optimality}
+\begin{itemize}
+  \item The best-playing AI is not the most fun: perfect aim or perfect
+        knowledge feels like cheating~\cite{yannakakis2018}.
+  \item NPCs are often intentionally flawed: they miss first shots, announce
+        their actions out loud, or hesitate.
+  \item Believability can be tested with ``Turing tests'' for bots, such as
+        the BotPrize competition~\cite{hingston2009}.
+  \item The more human-like a character looks, the higher player
+        expectations rise; small errors then feel uncanny~\cite{mori2012}.
+\end{itemize}
+
+\subsection{Development and Debugging}
+\begin{itemize}
+  \item Visual, inspectable systems (FSMs, behavior trees) are easier to
+        debug and are favored in large teams~\cite{colledanchise2018}.
+  \item Planners and learned models are harder to explain: it is not always
+        clear \emph{why} an NPC chose an action.
+  \item Tooling and editor support often decide which technique a studio
+        adopts, more than raw capability.
+\end{itemize}
+
+\subsection{Discussion}
+\begin{itemize}
+  \item No single technique wins on all criteria; the right choice depends
+        on genre, team size and the role of the NPC.
+  \item The trend is toward hybrids that combine designer-friendly
+        structure with local autonomy.
+  \item These trade-offs frame the current experiments discussed next.
+\end{itemize}

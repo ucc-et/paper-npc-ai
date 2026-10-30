@@ -1,1 +1,84 @@
 \section{Current Experiments}
+\label{sec:experiments}
+
+\subsection{Reinforcement Learning}
+\begin{itemize}
+  \item In reinforcement learning (RL), an agent learns by trial and error,
+        receiving rewards for good outcomes~\cite{sutton2018}.
+  \item Landmark results: human-level play on Atari games~\cite{mnih2015},
+        \emph{Dota~2} with OpenAI Five~\cite{berner2019}, and Grandmaster
+        level in \emph{StarCraft~II} with AlphaStar~\cite{vinyals2019}.
+  \item Important distinction: these systems aim to \emph{win}, while NPCs
+        should \emph{entertain}; strong play is not the same as good game
+        design.
+  \item Toolkits such as Unity ML-Agents make RL accessible to game
+        developers~\cite{juliani2018}.
+  \item Barriers to commercial use: long training times, unpredictable
+        behavior, and the need to retrain when the game changes.
+  \item Practical uses today: automated playtesting, balancing, and
+        training opponents for racing or fighting games.
+\end{itemize}
+
+\subsection{Neuroevolution and Learning from Players}
+\begin{itemize}
+  \item Neuroevolution evolves neural networks over many generations.
+        \emph{NERO} made training an army of NPCs the core
+        gameplay~\cite{stanley2005}.
+  \item Imitation learning copies human play to create more human-like
+        bots~\cite{yannakakis2018}.
+  \item Player modeling lets NPCs and games adapt to individual play
+        styles~\cite{yannakakis2018}.
+\end{itemize}
+
+\subsection{Large Language Models as NPCs}
+\begin{itemize}
+  \item LLMs allow NPCs to hold open-ended conversations instead of picking
+        from fixed dialogue options~\cite{gallotta2024}.
+  \item \emph{Generative Agents} placed 25 LLM-driven characters in a small
+        town; they planned their days, formed relationships and even
+        organized a party on their own~\cite{park2023}.
+  \item Architecture explained simply: memory of past events, reflection
+        to form higher-level thoughts, and planning of daily
+        activities~\cite{park2023}.
+  \item \emph{Voyager} used an LLM to explore and learn new skills in
+        \emph{Minecraft} without human help~\cite{wang2023}.
+  \item Gallotta et al.\ survey the many roles LLMs can play in games,
+        including as NPCs, designers and players~\cite{gallotta2024}.
+  \item The idea links back to earlier interactive drama
+        research~\cite{mateas2005,evans2014}, now with far more flexible
+        language.
+\end{itemize}
+
+\subsection{Limitations of LLM-Driven NPCs}
+\begin{itemize}
+  \item \emph{Hallucination}: the model may invent facts that contradict
+        the game world or its story~\cite{ji2023}.
+  \item Consistency: characters can drift out of role or be manipulated by
+        players into saying things the designer never intended.
+  \item Cost and latency: each response requires heavy computation, which
+        clashes with tight frame budgets (Section~\ref{sec:tradeoffs}).
+  \item Designer control is reduced, the same trade-off seen with planning
+        and RL, but stronger.
+  \item Ethical concerns: bias in training data, harmful content, and the
+        environmental cost of large models~\cite{bender2021}.
+\end{itemize}
+
+\subsection{Emerging Hybrid Approaches}
+\begin{itemize}
+  \item Promising direction: keep classical systems (behavior trees,
+        planners) in charge of actions, and use LLMs only for dialogue or
+        high-level intent~\cite{gallotta2024}.
+  \item Guardrails restrict what the model may say or do in the game
+        world.
+  \item Smaller local models could reduce cost and latency.
+\end{itemize}
+
+\subsection{Evaluating Experimental NPCs}
+\begin{itemize}
+  \item Win rates do not capture what matters for NPCs; player studies and
+        believability ratings are needed~\cite{warpefelt2017,hingston2009}.
+  \item Player enjoyment frameworks such as GameFlow offer structured
+        criteria~\cite{sweetser2005}.
+  \item Few studies so far compare LLM-based and classical NPCs with real
+        players, which is an open research gap.
+\end{itemize}

@@ -4,15 +4,79 @@
 \section{Introduction}
 \label{sec:introduction}
 \fi
-% You must have at least 2 lines in the paragraph with the drop letter
-% (should never be an issue)
-I wish you the best of success.
 
-\hfill mds
- 
-\hfill August 26, 2015
+\IEEEPARstart{T}{his} section is currently an outline. Each bullet is meant
+to become one or two sentences of running text.
 
-\subsection{Subsection Heading Here}
-Subsection text here.
-\subsubsection{Subsubsection Heading Here}
-Subsubsection text here.
+\subsection{Motivation}
+\begin{itemize}
+  \item Non-player characters (NPCs) are every character in a game that the
+        player does not control: enemies, companions, shopkeepers, crowds.
+  \item They largely decide whether a game world feels alive or empty; a
+        guard who walks into a wall breaks immersion faster than a weak
+        texture.
+  \item Game AI differs from academic AI: the goal is not to win or to be
+        optimal, but to create an entertaining and believable experience for
+        the player~\cite{yannakakis2018,millington2009}.
+  \item Laird and van Lent called interactive games the ``killer
+        application'' for human-level AI because they demand real-time,
+        social and adaptive behavior~\cite{laird2001}.
+  \item The field is changing fast: hand-authored systems from the 1990s and
+        2000s now sit next to machine learning and large language models
+        (LLMs)~\cite{gallotta2024}.
+\end{itemize}
+
+\subsection{What Makes a Good NPC?}
+\begin{itemize}
+  \item \emph{Believability}: the character appears to have its own goals,
+        emotions and awareness, even if its intelligence is
+        limited~\cite{bates1994,loyall1997}.
+  \item Warpefelt and Verhagen describe believability as fitting the
+        player's expectations for that kind of character in that
+        world~\cite{warpefelt2017}.
+  \item \emph{Fun and fairness}: an enemy should be challenging but
+        beatable; perfect aim is rarely enjoyable~\cite{sweetser2005}.
+  \item \emph{Designer control}: game designers need to shape and predict
+        what NPCs do so that levels and stories work as intended.
+  \item \emph{Efficiency}: AI shares a small slice of each frame with
+        graphics, physics and audio, often only a few
+        milliseconds~\cite{nareyek2004}.
+  \item These goals often conflict, which is a recurring theme of this
+        review (see Section~\ref{sec:tradeoffs}).
+\end{itemize}
+
+\subsection{Scope and Contributions}
+\begin{itemize}
+  \item Focus on \emph{decision making} (what an NPC does) and \emph{spatial
+        reasoning} (where and how it moves); animation and graphics are out
+        of scope.
+  \item Covers commercial techniques documented by industry developers as
+        well as academic research.
+  \item Contributions: (1) an accessible overview of the main NPC AI
+        techniques, (2) a side-by-side comparison along shared criteria, and
+        (3) a discussion of current experiments with learning and LLM-based
+        NPCs.
+\end{itemize}
+
+\subsection{Methodology}
+\begin{itemize}
+  \item Literature review of textbooks~\cite{millington2009,yannakakis2018},
+        peer-reviewed papers (e.g.\ IEEE Transactions on Games, AIIDE) and
+        industry talks from the Game Developers Conference (GDC).
+  \item Industry talks are included because many commercial techniques are
+        only documented there; this is noted as a limitation.
+  \item Selection criteria: influence on practice (used in shipped games)
+        or on research (widely cited).
+\end{itemize}
+
+\subsection{Structure of the Paper}
+\begin{itemize}
+  \item Section~\ref{sec:foundational}: early and foundational systems.
+  \item Section~\ref{sec:modern}: modern decision-making architectures.
+  \item Section~\ref{sec:perception}: perception and spatial reasoning.
+  \item Section~\ref{sec:tradeoffs}: comparison, constraints and
+        trade-offs.
+  \item Section~\ref{sec:experiments}: current experiments with machine
+        learning and LLMs.
+  \item Section~\ref{sec:conclusion}: conclusion and outlook.
+\end{itemize}

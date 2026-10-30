@@ -1,1 +1,60 @@
 \section{Perception and Spatial Reasoning}
+\label{sec:perception}
+
+\subsection{Sensing the World}
+\begin{itemize}
+  \item NPCs need to ``see'' and ``hear'' to react believably; usually this
+        is simulated with vision cones, line-of-sight checks and sound
+        radii~\cite{millington2009}.
+  \item Designers deliberately limit perception: an NPC that always knows
+        where the player is feels unfair and breaks stealth
+        gameplay~\cite{yannakakis2018}.
+  \item Stealth games make perception visible to the player (alert
+        indicators), turning AI awareness into a game mechanic.
+  \item Memory matters: NPCs remember the last known position of the player
+        and search there instead of instantly forgetting~\cite{isla2001}.
+\end{itemize}
+
+\subsection{Pathfinding}
+\begin{itemize}
+  \item Finding a route from A to B is the most common AI task in games.
+  \item The A* algorithm~\cite{hart1968} remains the standard: it explores
+        promising directions first by estimating the remaining distance.
+  \item Explain intuitively with a city-map analogy; no formulas needed.
+  \item \textbf{[Figure idea]} Grid with obstacles showing the explored
+        area and the final path.
+  \item Worlds are simplified for the search: waypoint graphs or
+        \emph{navigation meshes} (walkable areas made of polygons) are now
+        the industry norm~\cite{millington2009}.
+  \item Large worlds use hierarchical pathfinding: plan between regions
+        first, then refine locally.
+\end{itemize}
+
+\subsection{Steering and Movement}
+\begin{itemize}
+  \item Pathfinding gives a route; steering decides how to move along it
+        smoothly and avoid other characters~\cite{reynolds1999}.
+  \item Reynolds' ``boids'' show that three simple rules (separation,
+        alignment, cohesion) produce realistic flocks and
+        crowds~\cite{reynolds1987}.
+  \item Used for crowds, animal herds and squads moving in formation.
+\end{itemize}
+
+\subsection{Tactical Reasoning}
+\begin{itemize}
+  \item NPCs evaluate positions, not just routes: Where is good cover?
+        Where is the enemy likely to come from?
+  \item \emph{Influence maps} spread values such as danger or control
+        across the map, helping strategy AI decide where to attack or
+        defend~\cite{millington2009}.
+  \item Tactical position scoring is closely related to utility AI
+        (Section~\ref{sec:modern}).
+\end{itemize}
+
+\subsection{Summary}
+\begin{itemize}
+  \item Good perception and movement are often what players notice first;
+        clever decisions are wasted if the NPC gets stuck on a door.
+  \item These systems are mature and widely shared across games, unlike
+        decision making, which varies more by genre.
+\end{itemize}
