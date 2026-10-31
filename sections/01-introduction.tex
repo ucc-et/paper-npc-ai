@@ -1,11 +1,10 @@
 \ifCLASSOPTIONcompsoc
 \IEEEraisesectionheading{\section{Einleitung}\label{sec:introduction}}
 \else
-\section{Einleitung}
+\section{Introduction}
 \label{sec:introduction}
 \fi
 
-\begin{otherlanguage}{ngerman}
 
 \textbf{Non-Player Characters} (short. NPC) inhabit nearly every video game world. From enemies, to sidekicks, merchants or anonymous crowds: they fundamentally shape how players experience and engage with a virutal world. This paper presents a comparative overview over the most important methods, that are used to control the behavior of NPCs. Current development from machine learning and large language models will be placed into context.
 
@@ -39,25 +38,13 @@ This paper focuses on two core aspects of NPC AI: \emph{decision-making} and \em
 The contribution of this paper is divided into three parts: First it provides an accessible overview of the central methods of NPC AI. Second, it compares these methods based on common criteria. Third, it diescusses current experiments with machine learning and LLM-based NPCs and assesses their potential as well as their limitations. 
 
 \subsection{Methodology}
-\begin{itemize}
-  \item Literature review of textbooks~\cite{millington2009,yannakakis2018},
-        peer-reviewed papers (e.g.\ IEEE Transactions on Games, AIIDE) and
-        industry talks from the Game Developers Conference (GDC).
-  \item Industry talks are included because many commercial techniques are
-        only documented there; this is noted as a limitation.
-  \item Selection criteria: influence on practice (used in shipped games)
-        or on research (widely cited).
-\end{itemize}
+
+This paper is based on a literature review that includes standard texts \cite{millington2009,yannakakis2018}, peer-reviewed articles as well as technical presentations from the \emph{Game Developers Conference} (GDC). The use of industry presentations is required because many commercially deployed methods are only documented in this format. This is a limiation of the present work, because these sources are not subject to a fformal peer-review process. The criteria for selection were the influence of a method, as evidenced by its use in published games or based on its widespread acceptance in the academic literature.
 
 \subsection{Structure of the Paper}
-\begin{itemize}
-  \item Section~\ref{sec:foundational}: early and foundational systems.
-  \item Section~\ref{sec:modern}: modern decision-making architectures.
-  \item Section~\ref{sec:perception}: perception and spatial reasoning.
-  \item Section~\ref{sec:tradeoffs}: comparison, constraints and
-        trade-offs.
-  \item Section~\ref{sec:experiments}: current experiments with machine
-        learning and LLMs.
-  \item Section~\ref{sec:conclusion}: conclusion and outlook.
-\end{itemize}
-\end{otherlanguage}
+The following sections are organized as follows: Section \ref{sec:foundational} introduces early and fundamental systems. Section \ref{sec:modern} discusses modern architectures for decision-making, while Section \ref{sec:perception} focuses on perception and spatial reasoning. Section \ref{sec:tradeoffs} compares the methods presented and discusses their limitations and trade-offs. Section \ref{sec:experiments} highlights current experiments with machine learning and LLMs, before Section \ref{sec:conclusion} summarizes the results and provides an outlook.
+
+%TODO: Maybe different sentence starts in Paper structure?
+
+
+
