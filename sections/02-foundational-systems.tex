@@ -1,73 +1,73 @@
 \section{Foundational Systems}
 \label{sec:foundational}
 
+Before we can look at modern architectures and learning methods, we need to take a look at the techniques that have been used to control NPC behavior for several decades. These fundamental systems are by no means of only historical interest: they continue to shape a large portion of commercial games today and form the conceptual foundation upon which later approaches are built \cite{millington2009}. This section first outlines the historical development and then introduces scripting, finite and hierarchical state machines, and rule-based systems.
+
 \subsection{A Short History of NPC Behavior}
-\begin{itemize}
-  \item Early arcade games used fixed patterns: each ghost in a classic
-        maze game follows a simple, distinct chasing rule, which already
-        creates the impression of personality~\cite{millington2009}.
-  \item Limited memory and processing power meant behavior had to be cheap
-        and predictable.
-  \item As 3D games grew in the late 1990s and 2000s, NPCs needed to react
-        to a much richer world: sound, cover, teammates and the player's
-        tactics~\cite{laird2001}.
-  \item Key idea for the reader: most later techniques are answers to the
-        limits of these early approaches.
-\end{itemize}
+
+The first computer-controlled enemies in arcade games followed fixed, predefined patterns. A well-known example is \emph{Pac-Man} (1980), in which each of the four ghosts obeys its own, relatively simple chasing rule: While one heads directly toward the player, another tries to cut off the player’s path \cite{millington2009}. It is noteworthy that even these slight differences create the impression of individual personalities among players. Credibility, as defined in Section~\ref{sec:introduction}, thus does not necessarily arise from complex calculations, but rather from clearly distinguishable and consistent behavior.
+
+The technical constraints of that era left little room for other solutions. Memory and processing power were extremely limited, so the characters’ behavior had to be calculated with as little effort as possible while remaining predictable. With the rise of three-dimensional game worlds in the late 1990s and early 2000s, the requirements changed significantly. NPCs now had to react to a much more complex environment: to sounds, available cover, the behavior of teammates, and the player’s tactics \cite{laird2001}.
+
+One key idea is needed to understand the following sections: Most of the techniques developed later can be understood as responses to the limitations of these early approaches. Each of the methods described below solves specific problems of its predecessor while also introducing new limitations.
 
 \subsection{Scripting}
-\begin{itemize}
-  \item Designers write explicit instructions (``when the player enters the
-        room, play this line and attack'').
-  \item Usually done in a lightweight scripting language embedded in the
-        engine~\cite{millington2009}.
-  \item Strength: full control and perfect fit for story moments and
-        cutscenes.
-  \item Weakness: brittle; anything the designer did not anticipate breaks
-        the illusion. Does not scale to open worlds.
-  \item Still widely used today for set pieces, often layered on top of
-        autonomous AI.
-\end{itemize}
 
-\subsection{Finite-State Machines}
-\begin{itemize}
-  \item An NPC is always in exactly one \emph{state} (e.g.\ Patrol, Chase,
-        Attack, Flee); \emph{transitions} switch between states when a
-        condition is met~\cite{buckland2005,millington2009}.
-  \item Easy to understand and draw as a diagram, which makes them popular
-        with designers.
-  \item \textbf{[Figure idea]} Simple guard FSM with four states and arrows
-        labelled ``sees player'', ``loses player'', ``low health''.
-  \item Problem: the number of transitions grows quickly as states are
-        added (``state explosion''), and the logic becomes hard to
-        maintain~\cite{millington2009}.
-  \item Behavior that should be shared across states (e.g.\ reacting to a
-        grenade) has to be copied into every state.
-\end{itemize}
+The most direct form of behavior control is \emph{scripting}. In this process, designers formulate explicit instructions, such as: \glqq As soon as the player enters the room, play this line of dialogue and attack.\grqq{} Such instructions are typically written in a lightweight scripting language that is integrated into the game engine. This allows content to be customized without having to modify or recompile the engine’s underlying program code \cite{millington2009}.
+
+The key strength of scripting lies in the complete control it gives the development team. This control is suited for key narrative moments, cutscenes, or carefully staged game sequences, as it allows developers to specify exactly what happens and when. The criterion of creative control from Section~\ref{sec:introduction} is thus fulfilled to the fullest extent.
+
+However, this approach has a significant weakness: script-based behavior is fragile. Any situation not anticipated when the script was written can instantly break the illusion of a character acting autonomously. Since all reactions must be defined manually, this approach also scales badly to open game worlds, where the number of possible situations is almost impossible to manage. Nevertheless, scripting is by no means a thing of the past. It is still frequently used today for staged moments and is often layered on top of an otherwise autonomous AI as an additional layer. % TODO: Quelle (aktueller Einsatz von Skripting über autonomer KI)
+
+\subsection{Finite-State Machine}
+
+Among the most widely used techniques in game AI are \emph{finite-state machines} (FSM). An NPC is in exactly one \emph{state} at any given time, such as \emph{patrolling}, \emph{pursuing}, \emph{attacking}, or \emph{retreating}. Each state is associated with a specific behavior. \emph{Transitions} move from one state to another as soon as a corresponding condition is met \cite{buckland2005,millington2009}. Figure~\ref{fig:fsm} illustrates this concept using the example of a guard: If the guard spots the player, it switches from patrolling to pursuing; if it loses sight of the player, it returns to patrolling; if its health drops below a threshold, it retreats.
+
+\begin{figure}[!t]
+\centering
+\begin{tikzpicture}[
+    >=Stealth, node distance=1.9cm and 2.6cm, auto,
+    every state/.style={draw, rounded corners, rectangle, minimum width=1.9cm,
+                        minimum height=0.8cm, font=\footnotesize},
+    lbl/.style={font=\scriptsize, inner sep=2pt}]
+  \node[state, initial, initial text=]   (patrol) {Patrolling};
+  \node[state, right=of patrol]          (chase)  {Chasing};
+  \node[state, below=of chase]           (attack) {Attacking};
+  \node[state, below=of patrol]          (retreat)   {Retreat};
+  \path[->]
+    (patrol) edge[bend left=15]  node[lbl] {sees player}     (chase)
+    (chase)  edge[bend left=15]  node[lbl] {loses player}  (patrol)
+    (chase)  edge[bend left=15]  node[lbl] {within range}     (attack)
+    (attack) edge[bend left=15]  node[lbl] {out of range} (chase)
+    (attack) edge                node[lbl, below] {low health} (retreat);
+\end{tikzpicture}
+\caption{Simplified finite-state machine of a guard with four states. The arrows represent transitions that are triggered when the respective condition is met.}
+\label{fig:fsm}
+\end{figure}
+
+The popularity of FSMs can be explained primarily by their clarity. A finite-state machine can be represented directly as a diagram, which makes it accessible even to members of a development team who programming knowledge. Furthermore, the resulting behavior is easy to understand and can be investigated in a targeted manner in the event of errors \cite{millington2009}.
+
+However, as complexity increases, structural problems come to the surface. The number of transitions grows disproportionately with each added state, since, in the worst-case scenario, every state must be connected to every other state. With $n$ states, this results in up to $n(n-1)$ possible transitions. This effect is known as \emph{state explosion} and makes the logic increasingly difficult to maintain \cite{millington2009}. Added to this is a problem with reusability: behavior that is equally required in multiple states, must be copied into each individual state. This means that any subsequent change to this behavior requires adjustments in multiple places, which increases the likelihood of errors.
 
 \subsection{Hierarchical State Machines}
-\begin{itemize}
-  \item States can contain their own sub-machines, e.g.\ a ``Combat''
-        state that internally switches between ``Shoot'' and ``Reload''.
-  \item Reduces duplication and lets common reactions be handled at a
-        higher level~\cite{millington2009}.
-  \item Still requires designers to wire transitions by hand, which limits
-        how far it scales.
-\end{itemize}
+
+\emph{Hierarchical state machines} (HSM) address these weaknesses by allowing states to be nested. The concept traces back to the \emph{statecharts} introduced by Harel, which were originally developed to describe complex reactive systems \cite{harel1987}. A state can contain its own subordinate state machine. For example, a parent state called \emph{Combat} can internally switch between the sub-states \emph{Shooting} and \emph{Reloading} without this distinction necessarily being visible at the higher level.
+
+The main advantage of this structure lies in the reduction of redundancy. Common responses no longer need to be repeated in every individual state; instead, they can be defined once at a higher hierarchical level and then apply to all the sub-states contained within it \cite{millington2009}. This significantly reduces the number of transitions that must be explicitly modeled.
+
+But the fundamental problem remains: Even in an HSM, all transitions must be defined manually and linked to one another. As the scope of behavior increases, this approach also reaches its limits in terms of scalability and maintainability.
 
 \subsection{Rule-Based Systems}
-\begin{itemize}
-  \item Behavior expressed as a list of ``if \ldots{} then \ldots'' rules
-        that are checked against the current situation~\cite{russell2021}.
-  \item Common in strategy games for economic and military decisions.
-  \item Flexible, but conflicting rules and rule ordering become hard to
-        debug as the rule base grows.
-\end{itemize}
+
+\emph{Rule-based systems} take a different approach. Instead of representing behavior as a graph of states, they use a set of rules of the form \glqq If \ldots{}, then \ldots{}\grqq{}. In each decision cycle, the conditions of these rules are checked against the current situation, which is stored in a working memory; matching rules are then executed \cite{russell2021}. A rule might, for example, read: \glqq If food supplies are running low and a farm is available, then assign additional workers to agriculture.\grqq{}
+
+These systems are particularly common in strategy games, where computer-controlled opponents must make economic or military decisions.
+
+% TODO: Quelle (Einsatz regelbasierter Systeme in Strategiespielen)
+The advantage lies in its flexibility: new behaviors can be added by incorporating individual rules without having to restructure the existing framework. However, as the rule base grows, so do the challenges. Rules can contradict each other when several apply simultaneously, and the order in which they are evaluated influences the result. Strategies for resolving such conflicts are therefore indispensable \cite{russell2021}, but they make debugging more difficult, since the observed behavior can no longer be traced back to a single rule.
 
 \subsection{Summary}
-\begin{itemize}
-  \item Foundational systems are cheap, predictable and designer-friendly.
-  \item Their main weakness is scalability: complexity grows faster than
-        the behavior they produce.
-  \item This motivated the modular architectures in the next section.
-\end{itemize}
+
+The fundamental systems presented in this section share common strengths: they are resource-efficient, behave predictably, and are easily accessible to designers. This means they particularly meet the criteria of efficiency and creative control outlined in Section~\ref{sec:introduction}.
+
+Their main weakness lies in their lack of scalability. In all the considered methods, the effort required for development and maintenance grows faster than the complexity of the behavior they produce. Scripts must predict every situation, state machines suffer from an explosion in the number of transitions, and extensive rule bases become increasingly difficult to understand. These limitations provided the motivation for the modular architectures discussed in Section~\ref{sec:modern}. A prominent example of this is the AI in \emph{Halo~2}, whose developers explicitly described the growing complexity of classical approaches as the starting point for a new architecture \cite{isla2005}.
