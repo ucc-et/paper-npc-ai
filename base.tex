@@ -1,6 +1,13 @@
 
 \documentclass[10pt,journal,compsoc]{IEEEtran}
 \usepackage[nocompress]{cite}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+% German hyphenation for German chapters (wrapped in otherlanguage{ngerman}).
+% Once the whole paper is German, swap the order so ngerman is the main language.
+\usepackage[ngerman,english]{babel}
+\usepackage{tikz}
+\usetikzlibrary{automata,positioning,arrows.meta,quotes}
 
 \begin{document}
 \input{sections/metadata}
