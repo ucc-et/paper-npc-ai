@@ -1,99 +1,76 @@
 \section{Modern Architectures}
 \label{sec:modern}
 
+The methods presented in Section~\ref{sec:foundational} all face a common limitation: the cost of their development and maintenance grows faster than the complexity of the behavior they produce. From the mid-2000s onward, architectures have thus been established that either break behavior down into reusable, modular building blocks or shift the selection of specific actions patially to the system itself \cite{millington2009,yannakakis2018}. This section introduces the most influential of these approaches: behavior trees, goal-oriented and hierarchical planning, and utility-based decision-making. It then examines systems that control not a single character but the gaming experience as a whole, before ending with a discussion of the hybrid architectures that have become dominant in practice.
+
+These approaches can be classified along a common axis that was already hinted at in Section~\ref{sec:introduction}: The more decisions are left to the system, the more adaptive the behavior becomes; but the less direct creative control there is.
+
 \subsection{Behavior Trees}
-\begin{itemize}
-  \item Popularized by the AI of \emph{Halo~2}, presented by Damian Isla at
-        GDC 2005~\cite{isla2005}.
-  \item Behavior is organized as a tree: the NPC checks branches in order
-        of priority each update and runs the first one that applies.
-  \item Two basic building blocks, explained without code:
-        \emph{sequences} (do these steps in order, stop on failure) and
-        \emph{selectors} (try these options until one works).
-  \item \textbf{[Figure idea]} Small tree for a soldier: ``Take cover if
-        under fire'' $\rightarrow$ ``Attack if enemy visible''
-        $\rightarrow$ ``Patrol''.
-  \item Strengths: modular, reusable subtrees, easy to extend without
-        rewiring everything; now standard in major engines such as Unreal
-        Engine~\cite{colledanchise2018}.
-  \item Also adopted in robotics, which shows the idea is general beyond
-        games~\cite{colledanchise2018}.
-  \item Weaknesses: large trees become hard to read; the NPC only reacts,
-        it does not plan ahead.
-  \item Research has even used evolutionary algorithms to generate behavior
-        trees automatically, e.g.\ for the strategy game
-        \emph{DEFCON}~\cite{lim2010}.
-\end{itemize}
 
-\subsection{Goal-Oriented Action Planning (GOAP)}
-\begin{itemize}
-  \item Introduced to games by Jeff Orkin for \emph{F.E.A.R.}
-        (2005)~\cite{orkin2006}, based on the classic STRIPS planner from
-        academic AI~\cite{fikes1971}.
-  \item Instead of scripting \emph{how} to behave, designers give the NPC
-        \emph{goals} (e.g.\ ``kill enemy'') and \emph{actions} with
-        preconditions and effects (e.g.\ ``reload'' requires ammo, results
-        in loaded weapon).
-  \item The planner searches for a sequence of actions that reaches the
-        goal, similar to finding a route on a map.
-  \item Result: emergent tactics such as flanking or knocking over tables
-        for cover, which players perceived as very intelligent.
-  \item Orkin's title ``Three States and a Plan'' highlights that the FSM
-        shrank to three states while planning did the rest~\cite{orkin2006}.
-  \item Trade-offs: planning costs more processing time, and designers have
-        less direct control over the exact outcome.
-\end{itemize}
+The AI from \emph{Halo 2} is considered the starting point for modern architectures; Damian Isla presented its design at the GDC in 2005 \cite{isla2005}. The ideas described there were summarized and further developed in the following years under the term \emph{Behavior Tree} (BT). A Behavior Tree organizes a character’s behavior as a tree structure: the internal nodes control the flow of execution, while the leaves either evaluate conditions or execute specific actions. In each update cycle, the tree is traversed starting from the root. Each node reports back to its parent node whether it was successful, failed, or is still being executed \cite{colledanchise2018,champandard2013}.
 
-\subsection{Hierarchical Task Network (HTN) Planning}
-\begin{itemize}
-  \item Plans by breaking a big task (``defend the base'') into smaller
-        subtasks until only simple actions remain~\cite{erol1994}.
-  \item Encodes designer knowledge about \emph{how} tasks are usually done,
-        so it is faster and more predictable than GOAP~\cite{humphreys2013}.
-  \item Used in titles such as \emph{Killzone~2} and the
-        \emph{Transformers} games~\cite{humphreys2013}.
-  \item Good fit for squad behavior and long-term plans.
-\end{itemize}
+Two types of nodes form the foundation of this concept. A \emph{sequence} executes its child nodes in order and terminates as soon as one of them fails. It is like a checklist that leads to success only if all steps have been completed. A \emph{selector}, on the other hand, tries its child nodes one after another until one of them succeeds. It can also be thought of as a list of alternatives ordered by priority. Figure~\ref{fig:bt} illustrates how these two node types interact using the example of a soldier: If the soldier is under fire, he seeks cover; otherwise, he attacks if an enemy is visible. If neither of these conditions applies, he patrols.
+
+\begin{figure}[!t]
+\centering
+\begin{tikzpicture}[
+    >=Stealth,
+    every node/.style={font=\scriptsize},
+    ctrl/.style={draw, rectangle, minimum width=0.7cm, minimum height=0.55cm, font=\footnotesize\bfseries},
+    cond/.style={draw, dashed, rounded corners=6pt, rectangle, inner sep=3pt, align=center},
+    act/.style={draw, rounded corners, rectangle, inner sep=3pt, align=center},
+    level 1/.style={sibling distance=3.0cm, level distance=1.05cm},
+    level 2/.style={sibling distance=1.5cm, level distance=1.15cm},
+    edge from parent/.style={draw, ->}]
+  \node[ctrl] {?}
+    child { node[ctrl] {$\rightarrow$}
+      child { node[cond] {under\\fire?} }
+      child { node[act] {seek\\cover} } }
+    child { node[ctrl] {$\rightarrow$}
+      child { node[cond] {Enemy\\visible?} }
+      child { node[act] {Attack} } }
+    child { node[act] {patrol} };
+\end{tikzpicture}
+\caption{A simplified behavior tree for a soldier. The selector (?) checks its child nodes from left to right until one is successful; the sequences ($\rightarrow$) execute their action only if the preceding condition (dashed line) is met.}
+\label{fig:bt}
+\end{figure}
+
+The key difference from finite-state machines is that transitions no longer need to be explicitly modeled. Which behavior is active is implied by the structure and order of the nodes. Subtrees such as \glqq “seek cover”\grqq{} can be reused as standalone modules in different scenarios and can be extended without having to restructure the rest of the tree. Thus, behavior trees directly address the state explosion described in Section~\ref{sec:foundational}. Due to these properties, they are now considered the industry standard and are, for example, firmly integrated into the Unreal Engine \cite{colledanchise2018}. 
+
+Nevertheless, behavior trees also have their weaknesses. Extensive trees with hundreds of nodes become difficult to read, and the fixed priority order makes it challenging to weigh multiple competing goals against one another in a nuanced way. Furthermore, behavior trees are fundamentally \emph{reactive}: a character reacts to the current situation but does not plan ahead several steps at a time. Research has also explored whether behavior trees can be generated automatically. For example, Lim et al. used evolutionary algorithms to develop behavior trees for the strategy game \emph{DEFCON} that were able to compete with the original, manually designed AI \cite{lim2010}.
+
+%% TODO: go more deep into DEFCON?
+
+\subsection{Goal-Oriented Action Planning}
+
+% TODO: maybe we should add a section just about AI Planning?
+
+\emph{Goal-Oriented Action Planning} (GOAP), developed by Jeff Orkin for the first-person  horror shooter \emph{F.E.A.R.} (2005), takes a fundamentally different approach \cite{orkin2004,orkin2006}. It is based on the classic STRIPS planning system from academic AI research \cite{fikes1971}. Instead of specifying \emph{how} a character should behave, the designers describe \emph{what} it should achieve. To do this, they define \emph{goals}, such as \glqq “eliminate enemies”\grqq{}, as well as a set of \emph{actions}, each of which has preconditions and effects. For example, the action \glqq “Reload”\grqq{} requires that ammunition be available and results in the weapon being loaded; the action \glqq “Shoot”\grqq{}, in turn, requires a loaded weapon.
+
+At runtime, a planner searches for a sequence of actions that transforms the current state of the world into a state in which the goal is achieved. This search problem is structurally similar to route planning on a map and was in fact solved in \emph{F.E.A.R.} using the A* algorithm, which is otherwise used for pathfinding \cite{orkin2006,hart1968}. The result was emergent tactics: enemies flanked players, knocked over tables to take cover, or retreated to call for reinforcements. None of these maneuvers were explicitly scripted, yet players perceived the behavior as remarkably intelligent. The title of Orkin’s talk, \glqq Three States and a Plan\grqq{}, captures the essence of the approach: the remaining state machine was reduced to just three states, while the actual decision-making logic was entirely handled by the planner \cite{orkin2006}.
+
+But this flexibility comes at a cost. Searching for a plan requires significantly more computation time at runtime than traversing a tree, which is a serious issue given the limited time budget per frame (see Section~\ref{sec:introduction}). From a design perspective, what is more challenging is that designers can only influence the specific behavior indirectly through goals, actions, and their costs. Since the behavior is not explicitly defined but rather emerges from the search process, debugging also becomes more time-consuming.
+
+\subsection{Hierarchical Task Network Planning}
+
+\emph{Hierarchical Task Network Planning} (HTN) also follows a planning-based approach, but differs in the type of search it uses. An abstract task such as \glqq defend the base\grqq{} is broken down step by step into subtasks, such as \glqq take up a position\grqq{} and \glqq secure access\grqq{}, until only primitive, directly executable actions remain \cite{erol1994}. For each complex task, there may be several \emph{methods} that describe alternative decompositions and are subject to certain conditions.
+
+While GOAP searches freely for a solution within the space of all possible actions, an HTN planner follows predefined decomposition patterns. These patterns encode the developers’ knowledge of \emph{how} a task is typically solved. This drastically reduces the search space, so HTN planners generally operate faster and more predictably than GOAP \cite{humphreys2013}. On the other hand, they are less suited to generating completely unexpected solutions. Commercially, HTN planning has been used in \emph{Killzone~2} and the \emph{Transformers} games, among others \cite{humphreys2013}. The hierarchical structure is particularly well-suited for coordinating groups and for long-term planning, as it provides natural levels of abstraction: A task at the squad level can be decomposed into tasks for individual members.
 
 \subsection{Utility AI}
-\begin{itemize}
-  \item Every possible action receives a score (``utility'') based on the
-        current situation; the NPC picks the highest-scoring
-        action~\cite{mark2009}.
-  \item Example: a character's ``eat'' score rises as hunger grows, while
-        ``flee'' rises with nearby danger. Life simulations such as
-        \emph{The Sims} are a well-known use.
-  \item Produces smooth, context-sensitive behavior instead of hard
-        switches.
-  \item Variants such as dual-utility reasoning add randomness among the
-        top options to avoid robotic predictability~\cite{dill2015}.
-  \item Challenge: tuning the scoring curves takes experience and
-        playtesting~\cite{mark2009}.
-\end{itemize}
+
+\emph{Utility AI} does not rely on either a fixed order of priorities or explicit planning. Rather, in each decision cycle, every possible action is assigned a numerical value—known as \emph{utility}—which is calculated based on characteristics of the current situation. The character then selects the action with the highest utility \cite{mark2009}. Variables such as hunger, health, or distance from an opponent are converted into utility values using evaluation curves. For example, the utility of the action \glqq Eating\grqq{} increases as hunger rises, while the utility of \glqq Fleeing\grqq{} increases as danger draws nearer. A well-known example is life simulations such as \emph{The Sims}, in which characters choose their actions based on their current needs.
+
+The main advantage of this approach lies in its context-sensitive behavior. Instead of hard switching points, as found in state machines and behavior trees, the decision takes multiple factors into account at the same time and responds progressively to changes. The strict selection of the best option in each case, though, can lead to behavior that seems too mechanical, since a character always behaves identically in the same situations. Variants such as \emph{dual-utility reasoning} address this problem by first grouping actions by priority and then making weighted random selections within the best group \cite{dill2015}. The central challenge lies in fine-tuning the evaluation curves: this requires experience and extensive game testing, and the interactions between many curves are difficult to predict \cite{mark2009}.
 
 \subsection{AI Directors and Drama Management}
-\begin{itemize}
-  \item Some systems control the \emph{overall experience} rather than a
-        single NPC.
-  \item The AI Director in \emph{Left~4~Dead} adjusts enemy spawns and
-        intensity based on how stressed the players
-        are~\cite{booth2009}.
-  \item Related to dynamic difficulty adjustment, which keeps the game in
-        the player's ``flow'' zone~\cite{hunicke2005,sweetser2005}.
-  \item Interactive drama such as \emph{Fa\c{c}ade} uses a drama manager to
-        steer a story with two conversational NPCs~\cite{mateas2005}.
-  \item Social simulation systems such as \emph{Versu} model
-        relationships and social norms between
-        characters~\cite{evans2014}.
-\end{itemize}
+
+The methods described so far control individual characters. Some systems, however, operate at a higher level and control the \emph{overall gaming experience}. A well-known example is the \emph{AI Director} from \emph{Left~4~Dead}. It continuously assesses the players’ stress levels and adjusts the appearance of enemies, the distribution of items, and the pace of the game accordingly. In this way, it creates a cycle of tension buildup, climax, and periods of relief \cite{booth2009}. The concept is closely related to \emph{dynamic difficulty adjustment}, which aims to keep players in a state where they are neither overwhelmed nor underchallenged \cite{hunicke2005,sweetser2005}.
+
+In the field of interactive drama, this concept extends to the narrative. The experimental game \emph{Fa\c{c}ade} uses a drama manager that, based on the players’ free text inputs, selects short plot units—so-called \emph{beats}—and thus creates a dramatic arc between two speaking NPCs \cite{mateas2005}. \emph{Versu} takes an even broader approach, modeling social practices and norms within which characters independently choose actions based on their desires and relationships \cite{evans2014}. Riedl and Bulitko summarize such systems under the term “interactive narration,” in which an AI assumes the role of an author or game master \cite{riedl2013}. These works demonstrate that NPC AI extends beyond the decisions of individual characters. At the same time, they serve as an important point of reference for the experiments with large language models discussed in Section~\ref{sec:experiments}.
 
 \subsection{Hybrid Architectures}
-\begin{itemize}
-  \item Real games rarely use one technique alone: a typical setup is a
-        behavior tree for structure, utility scores for choosing between
-        options, and scripts for story moments~\cite{rabin2013}.
-  \item Layered ``brain'' designs separate perception, memory and action
-        selection~\cite{isla2001}.
-  \item Key message: the techniques are tools that complement each other,
-        not competitors.
-\end{itemize}
+
+In commercial games, a single method is rarely used in its pure form. Typical architectures instead combine several approaches, such as a behavior tree for the basic structure, utility evaluations for choosing between equally ranked options, and scripts for narratively significant moments \cite{rabin2013}. Even before his work on \emph{Halo~2}, Isla, together with colleagues, proposed a layered architecture that separates perception, memory, and action selection \cite{isla2001}. This separation makes it possible to implement each layer using the most suitable method for that layer.
+
+In summary, the architectures presented can be distinguished based on the criteria outlined in Section~\ref{sec:introduction}. Behavior trees offer a high degree of design control with low computational overhead and solve the scaling problem of state machines. Planning methods such as GOAP and HTN increase flexibility and can produce believable, seemingly intelligent behavior, but they shift some of the control from the design team to the system and require more computation time. Utility-based approaches generate seamless, context-sensitive behavior, but require a significant amount of fine-tuning. These methods should thus not be viewed as competing alternatives, but rather as complementary tools. What they all have in common is that they rely on reliable information about the game world and on the character’s ability to navigate within it. The following section~\ref{sec:perception} is devoted to these fundamentals.
