@@ -1,60 +1,50 @@
-\section{Perception and Spatial Reasoning}
+\section{Perception and Spatial Thinking}
 \label{sec:perception}
 
-\subsection{Sensing the World}
-\begin{itemize}
-  \item NPCs need to ``see'' and ``hear'' to react believably; usually this
-        is simulated with vision cones, line-of-sight checks and sound
-        radii~\cite{millington2009}.
-  \item Designers deliberately limit perception: an NPC that always knows
-        where the player is feels unfair and breaks stealth
-        gameplay~\cite{yannakakis2018}.
-  \item Stealth games make perception visible to the player (alert
-        indicators), turning AI awareness into a game mechanic.
-  \item Memory matters: NPCs remember the last known position of the player
-        and search there instead of instantly forgetting~\cite{isla2001}.
-\end{itemize}
+The architectures presented in Section~\ref{sec:modern} answer the question of \emph{what} a character should do. In order for these decisions to make sense, the character must first know what is happening in its environment and then be able to carry out the desired action in the space. No matter how carefully a behavior tree is designed, if the opponent gets stuck on a doorframe or fails to notice the players even though they are standing right in front of it, the illusion of an autonomously acting being is destroyed. In this sense, perception and movement form the second core aspect identified in Section~\ref{sec:introduction} as the subject of this paper \cite{millington2009}.
+
+This section follows the path of information as it travels through the character. First, we examine how NPCs perceive and remember their environment. This is followed by pathfinding and control. The section concludes with tactical thinking, in which it is no longer the path but the location itself that is evaluated.
+
+\subsection{Perception of the Game World}
+
+In essence, every character has full access to the state of the game world, since it is part of the same simulation. Such knowledge would be the simplest technical solution, but it contradicts the criterion of believability from Section~\ref{sec:introduction}: A guard who can detect players through walls does not appear intelligent, but rather unfair \cite{yannakakis2018}. Games therefore simulate limited perception based on human senses \cite{millington2009}. Vision is typically modeled using a \emph{cone of vision}, that is, an area in front of the character with limited range and a limited field of view. If a target lies within this cone, a \emph{line of sight} checks whether obstacles are blocking the view. Noise, however, spreads in a circular pattern around its source and is detected by all characters within a certain radius, with loud events such as gunshots having a greater range than footsteps.
+
+% TODO: Cone of vision image? Maybe mention noise spread and wall bounce off
+
+The sensory system in \emph{Thief: The Dark Project} (1998) demonstrates that perception does not have to be understood as a binary concept. Instead of a simple \glqq “seen”\grqq{} or \glqq “not seen”\grqq{}, it takes into account factors such as lighting conditions, distance, and the player character’s movement, and translates these into graded levels of attention ranging from initial suspicion to certain detection \cite{leonard2003}. Stealth games go one step further and make the NPCs’ state of awareness visible, for example through light indicators or symbols above the characters’ heads. In this way, internal perception itself becomes a game mechanic: players can gauge how far they can venture, and the behavior of their opponents becomes predictable.
+
+% TODO: Maybe show the indicator
+
+Just as important as perception is \emph{memory}. A character who forgets the players the moment they disappear around a corner is not very convincing. It is more believable if the character remembers the last known position and searches there specifically. In their layered architecture, Isla et al. specifically differentiate between perception, memory, and action selection (see Section~\ref{sec:modern}) \cite{isla2001}. Perceived objects are assigned a confidence level that decreases over time, so that the character must deal with uncertain and outdated knowledge. Overall, this shows clearly that good game AI is deliberately designed to be imperfect: The limits of perception are not a technical necessity, but a design decision that ensures fairness and playability.
 
 \subsection{Pathfinding}
-\begin{itemize}
-  \item Finding a route from A to B is the most common AI task in games.
-  \item The A* algorithm~\cite{hart1968} remains the standard: it explores
-        promising directions first by estimating the remaining distance.
-  \item Explain intuitively with a city-map analogy; no formulas needed.
-  \item \textbf{[Figure idea]} Grid with obstacles showing the explored
-        area and the final path.
-  \item Worlds are simplified for the search: waypoint graphs or
-        \emph{navigation meshes} (walkable areas made of polygons) are now
-        the industry norm~\cite{millington2009}.
-  \item Large worlds use hierarchical pathfinding: plan between regions
-        first, then refine locally.
-\end{itemize}
 
-\subsection{Steering and Movement}
-\begin{itemize}
-  \item Pathfinding gives a route; steering decides how to move along it
-        smoothly and avoid other characters~\cite{reynolds1999}.
-  \item Reynolds' ``boids'' show that three simple rules (separation,
-        alignment, cohesion) produce realistic flocks and
-        crowds~\cite{reynolds1987}.
-  \item Used for crowds, animal herds and squads moving in formation.
-\end{itemize}
+Finding a path from one location to another is one of the most common AI tasks in games \cite{millington2009,yannakakis2018}. Enemies chase players, companions follow them, and merchants go about their daily routines in a city. To solve this problem algorithmically, the game world is represented as a \emph{graph}: nodes represent accessible locations, edges represent the connections between them, and each edge carries a cost, such as the distance to be traveled.
 
-\subsection{Tactical Reasoning}
-\begin{itemize}
-  \item NPCs evaluate positions, not just routes: Where is good cover?
-        Where is the enemy likely to come from?
-  \item \emph{Influence maps} spread values such as danger or control
-        across the map, helping strategy AI decide where to attack or
-        defend~\cite{millington2009}.
-  \item Tactical position scoring is closely related to utility AI
-        (Section~\ref{sec:modern}).
-\end{itemize}
+The A* algorithm, which was first introduced in 1968 \cite{hart1968}, has become the standard method for searching such a graph. It can be understood as a further development of Dijkstra’s algorithm, which searches uniformly in all directions from a starting point until it reaches the goal \cite{dijkstra1959}. This can be compared to a person walking down every street in an unfamiliar city until they happen to stumble upon their destination. A* supplements this search with a \emph{heuristic}, which is an estimate of the remaining distance to the destination. When selecting the next location to explore, the algorithm therefore considers not only the path already traveled but also how far the location is still from the destination. This way, promising directions are prioritized, while detours are explored only if the direct path is blocked. As long as the heuristic never overestimates the actual distance, A* is guaranteed to find the shortest path \cite{hart1968}.
+
+In order to ensure efficient pathfinding, the representation of the game world is just as crucial as the algorithm itself. A high-resolution grid is certainly intuitive, but in large worlds it generates an enormous number of nodes. Early 3D games therefore used \emph{waypoint graphs}, in which the design team manually placed and connected individual points. These are efficient, but they restrict characters to predetermined paths, which can result in unnatural-looking movement. Today, \emph{navigation meshes} are considered the industry standard; they describe the traversable area of a level using connected, convex polygons \cite{snook2000,millington2009}. A character can move freely within a polygon, so A* only needs to determine the sequence of polygons to traverse. Navigation meshes can also be generated automatically from the level geometry and are integrated into common engines such as Unity and Unreal.
+
+For very large worlds, this simplification alone is not always sufficient. \emph{Hierarchical pathfinding} breaks down the map into regions and first roughly plans which regions must be traversed before refining the path within the individual regions \cite{botea2004}. The approach is similar to how a person plans a route: first selecting the highways between two cities and only dealing with the individual streets once on site. Botea et al. show that this method speeds up the search by up to an order of magnitude, while the paths found are only slightly longer than the optimal path \cite{botea2004}. Here, once again, the trade-off between efficiency and quality—a theme that runs throughout this work—becomes evident.
+
+\subsection{Control and Steering/Movmeent}
+
+% TODO: check if Movement or Steering
+
+Pathfinding simply provides a sequence of points. How a character moves along these points is determined by another layer known as \emph{steering}. Reynolds describes a series of simple \emph{steering behaviors}, each of which calculates a desired direction of movement: A character can move toward a target (\emph{seek}), flee from danger (\emph{flee}), slow down upon arrival (\emph{arrive}), or follow a path \cite{reynolds1999}. When several of these behaviors are combined in a weighted manner, the result is fluid motion that smoothly navigates curves and avoids obstacles and other characters, rather than rigidly jumping from waypoint to waypoint.
+
+Reynolds had already demonstrated with his \emph{Boids} that complex group behavior can emerge from just a few local rules \cite{reynolds1987}. Each individual in a simulated flock of birds follows only three rules: it maintains a distance from its neighbors (\emph{Separation}), adjusts its direction to match their movement (\emph{Alignment}), and moves toward the center of the group (\emph{Cohesion}). Although no central authority controls the flock, the overall picture that emerges is convincingly natural. This principle of emergence, which was already observed in GOAP (see Section~\ref{sec:modern}), is found today in the representation of animal herds, crowds, and troops moving in formation. For dense crowds, methods such as \emph{Reciprocal Velocity Obstacles} have also been developed, in which agents choose their speed in such a way as to avoid collisions with other agents who are also maneuvering to avoid collisions \cite{vandenberg2008}.
+
+\subsection{Tactical Thinking}
+
+
+While pathfinding seeks a route between two given locations, in many situations a character must first decide \emph{which} location to head for in the first place. Where is there good cover? From which direction can an attack be expected? From which position can an opponent be flanked? Such questions fall within the scope of \emph{tactical thinking} \cite{millington2009}.
+
+A common method for evaluating positions is \emph{tactical position evaluation}. This involves generating a set of possible positions and evaluating each position based on several criteria, such as whether it offers cover from the enemy, whether there is a line of sight from that position, and how far away it is. The character then selects the position with the best overall rating. In \emph{Killzone} (2004), this approach allowed enemies to dynamically seek cover and change positions without the need to manually mark suitable positions \cite{straatman2005}. This principle is closely related to the utility-based AI described in Section~\ref{sec:modern}: Actions are replaced by locations that are evaluated based on their situational utility.
+
+
+On a broader level, \emph{influence maps} operate. These distribute values such as danger, military strength, or territorial control across the entire map, with each unit exerting an influence that diminishes with increasing distance \cite{tozour2001,millington2009}. Overlaying these influences provides a picture of the situation, from which one can determine, for example, where the front line runs, which areas are weakly defended, or which routes are dangerous. In strategy games in particular, influence maps therefore serve as the basis for decisions about where to attack or defend. Since pathfinding can take the values of an influence map into account as additional costs, it is also possible to calculate paths that are not only short but also safe.
 
 \subsection{Summary}
-\begin{itemize}
-  \item Good perception and movement are often what players notice first;
-        clever decisions are wasted if the NPC gets stuck on a door.
-  \item These systems are mature and widely shared across games, unlike
-        decision making, which varies more by genre.
-\end{itemize}
+
+Perception and spatial reasoning form the foundation upon which the architectures described in Section~\ref{sec:modern} are built. For players, these are often even more crucial than the decision-making logic itself, because a character that gets stuck on a door or overlooks obvious cues stands out immediately, whereas a well-thought-out decision often goes unnoticed. In contrast to decision-making—where very different approaches have become established depending on the genre and studio—the techniques presented here are largely mature and standardized: A* on navigation graphs, Reynolds-based control behavior, and limited sensory models are found in nearly all modern games and are an integral part of widely used game engines. At the same time, they account for a significant portion of the computational load, since pathfinding and line-of-sight checks must be performed simultaneously for many characters. The following section~\ref{sec:tradeoffs} examines how this computational load relates to the other criteria and what trade-offs this entails for the choice of an algorithm.
