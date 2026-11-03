@@ -1,91 +1,72 @@
-\section{Constraints and Trade-Offs}
+\section{Framework Conditions and Conflicting Goals}
 \label{sec:tradeoffs}
 
-\subsection{Comparison Criteria}
-\begin{itemize}
-  \item Compare the techniques from Sections~\ref{sec:foundational}
-        and~\ref{sec:modern} along five criteria: designer control,
-        scalability, adaptivity, computational cost, and ease of debugging.
-  \item Ratings are qualitative and based on the reviewed
-        literature~\cite{millington2009,yannakakis2018,rabin2013}.
-  \item Table~\ref{tab:comparison} summarizes the result (draft ratings,
-        to be checked while writing).
-\end{itemize}
+% TODO : Rahmenbedingungen und Zielkonflikte ? Titel? nicht so nice eventuell
 
-\begin{table}[!t]
-\renewcommand{\arraystretch}{1.3}
-\caption{Draft Qualitative Comparison of NPC Decision-Making Techniques}
+The previous sections have mostly looked at NPC AI methods individually. Even at this stage, it's clear that each method addresses certain weaknesses of its counterparts, but in doing so, introduces new limitations. This section summarizes the observations made so far and compares the methods based on common criteria. The starting point is the requirements for a good game character formulated in Section~\ref{sec:introduction}: believability, fun, fairness, creative control, and efficiency. As indicated there, these goals cannot all be optimized at the same time. Choosing a method is therefore always a decision about which trade-off a studio is willing to accept.
+
+% TODO: Are the requirements lining up with what was said so far?
+
+\subsection{Comparison Criteria}
+
+For the purpose of comparison, the requirements from Section~\ref{sec:introduction} are translated into five criteria that have repeatedly proven to be crucial in the literature and in industry case studies \cite{millington2009,yannakakis2018,rabin2013}. \emph{Design control} describes how directly the design team can determine a character’s behavior. \emph{Scalability} indicates how development and maintenance efforts change as behavior becomes more complex. \emph{Adaptability} refers to the ability to react appropriately to situations that were not explicitly anticipated during the design phase. The \emph{computational cost} captures the runtime costs, and the \emph{traceability} describes how easily one can determine, in the event of errors, why an agent chose a particular action.
+
+The table~\ref{tab:comparison} summarizes the classification of decision-making procedures from Sections~\ref{sec:foundational} and~\ref{sec:modern}. To make it easier to compare them later, the learning-based and language-model-based approaches—which are discussed in detail in Section~\ref{sec:experiments}—are also listed. The perception and movement procedures from Section~\ref{sec:perception}, on the other hand, are not included in the table, as they do not represent alternatives to the decision-making procedures but rather form their common foundation. This is a qualitative assessment based on the reviewed literature and not the result of our own measurements. The evaluations should therefore be understood as general trends that may vary depending on implementation in individual cases.
+
+\begin{table*}[!t]
+\renewcommand{\arraystretch}{1.2}
+\caption{Qualitative Comparison of Decision-Making Procedures for NPCs}
 \label{tab:comparison}
 \centering
-\setlength{\tabcolsep}{3pt}
 \begin{tabular}{lccccc}
 \hline
-Technique & Control & Scale & Adapt. & Cost & Debug \\
+\textbf{Method} & \textbf{Design Control} & \textbf{Scalability} & \textbf{Adaptability} & \textbf{Computational Complexity} & \textbf{Traceability} \\
 \hline
-Scripting      & high & low  & low  & low  & high \\
-FSM / HFSM     & high & low--med & low & low & high \\
-Behavior tree  & high & high & med  & low  & med  \\
-GOAP           & med  & high & high & med--high & low \\
-HTN            & med--high & high & med & med & med \\
-Utility AI     & med  & high & high & low--med & low--med \\
-Learned (RL)   & low  & med  & high & high$^{*}$ & low \\
-LLM-based      & low  & med  & high & high & low \\
+Scripts          & high         & low         & low & low         & high \\
+FSM / HSM        & high         & low–medium & low & low         & high \\
+Behavior Tree    & high         & high           & medium & low         & medium–high \\
+GOAP             & medium       & high           & high   & medium–high   & low \\
+HTN              & medium–high & high           & medium & medium         & medium \\
+Utility AI       & medium       & high           & high   & low–medium & low–medium \\
+Learning-based (RL) & low       & medium         & high   & high$^{\ast}$  & low \\
+LLM-based      & low       & medium         & high   & high           & low \\
 \hline
 \end{tabular}
 
 \vspace{2pt}
-{\footnotesize $^{*}$Mostly during training.}
-\end{table}
+{\footnotesize In terms of computational effort, a high value means high costs; for all other criteria, a high value is advantageous. $^{\ast}$Especially during training.}
+\end{table*}
 
-\subsection{Performance Budgets}
-\begin{itemize}
-  \item Games run at 30--60 frames per second or more; AI gets only a small
-        share of each frame~\cite{nareyek2004}.
-  \item Common tricks: update distant NPCs less often, spread work across
-        frames, use simpler AI for background characters (``level of
-        detail'' for AI)~\cite{millington2009}.
-  \item This explains why expensive techniques are often limited to a few
-        important characters.
-\end{itemize}
+A clear trend emerges from the table: The lower a method appears in the table, the greater its adaptability tends to be; but the lower its controllability and traceability. This pattern confirms the axis along which modern architectures were classified in Section~\ref{sec:modern}. The following subsections examine the most important conflicting objectives that arise from this in detail.
 
-\subsection{Designer Control versus Autonomy}
-\begin{itemize}
-  \item More autonomous AI (planning, learning) can surprise players in
-        good ways, but also in bad ways that break levels or
-        stories~\cite{orkin2006}.
-  \item Designers need predictable results to build missions and
-        balance difficulty.
-  \item Most studios therefore choose ``authored autonomy'': AI decides
-        within boundaries set by designers.
-\end{itemize}
+\subsection{Computational Budgets}
 
-\subsection{Believability versus Optimality}
-\begin{itemize}
-  \item The best-playing AI is not the most fun: perfect aim or perfect
-        knowledge feels like cheating~\cite{yannakakis2018}.
-  \item NPCs are often intentionally flawed: they miss first shots, announce
-        their actions out loud, or hesitate.
-  \item Believability can be tested with ``Turing tests'' for bots, such as
-        the BotPrize competition~\cite{hingston2009}.
-  \item The more human-like a character looks, the higher player
-        expectations rise; small errors then feel uncanny~\cite{mori2012}.
-\end{itemize}
+Games are typically rendered at 30 to 60 frames per second for videogame consoles, while a gaming PC can reach up to hundreds of frames per second, depending on the game. This leaves only about 16 to 33 milliseconds to render a single frame, which the AI must share with graphics, physics, and audio \cite{nareyek2004}. The portion allocated to the AI is correspondingly small and must be distributed among all characters in a scene. In addition, a large portion of this budget is already consumed by the fundamentals described in Section~\ref{sec:perception}, since pathfinding and line-of-sight checks must be performed in parallel for many characters.
+
+In practice, therefore, several techniques have been established to limit the computational load \cite{millington2009}. Characters that are far away or out of sight are updated less frequently than characters in the immediate neighborhood of the players. Complex calculations, such as a long pathfinding process, are distributed across multiple frames rather than being completed in a single frame. Finally, background characters are assigned simplified AI, while only the characters with which the players actually interact execute the full range of behaviors. Following the concept of representing graphical models at different degrees of complexity, this approach is also referred to as the \glqq Level of Detail\grqq{} for AI. These limitations explain why computationally intensive methods such as GOAP or even language model-based approaches are usually used only for a few, particularly important characters, while the majority of NPCs make do with simple state machines or behavior trees.
+
+\subsection{Design Control and Autonomy}
+
+The central conflict of objectives in this work lies between the design team’s control and the character’s autonomy. Autonomous processes such as planning or learning can surprise players in a positive way. The enemies in \emph{F.E.A.R.} were perceived as intelligent precisely because their tactics were not explicitly predetermined \cite{orkin2006}. However, this same freedom can also lead to undesirable outcomes: A character that finds an unforeseen path to the goal can make a level unsolvable, end a mission prematurely, or disrupt the dramatic flow of a scene. For the design team, predictability is therefore not a minor issue, but a prerequisite for designing missions and fine-tuning the difficulty level.
+
+Most game studios do not resolve this conflict in favor of one side or another, but instead pursue a form of \emph{guided autonomy}: The AI makes decisions independently, but within limits set by the design team. The methods presented in Section~\ref{sec:modern} offer various control mechanisms for this purpose. In HTN planners, predefined decomposition patterns determine which solutions are even considered \cite{humphreys2013}. In utility-based approaches, the design team uses evaluation curves to specify which factors are weighted and to what extent \cite{mark2009}. Even the AI Director from \emph{Left 4 Dead} does not act completely freely, but rather varies the gameplay within a predetermined framework of suspense and relief \cite{booth2009}. Finally, in hybrid architectures, scripts handle the narratively significant moments, while autonomous systems determine the behavior in between \cite{rabin2013}.
+
+\subsection{Credibility and Optimality}
+
+A second trade-off concerns the relationship between credibility and optimality. Unlike in academic AI research, the AI that plays the best is not necessarily the one that provides the most enjoyment. An opponent with perfect accuracy or complete knowledge of the players’ positions would be technically easy to implement, but would be perceived as unfair and cheating \cite{yannakakis2018}. As already became clear in the design of limited sensory models in Section~\ref{sec:perception}, NPCs are therefore often deliberately designed to be imperfect. Typical methods include an intentionally missed first shot, a brief hesitation before an attack, or loudly announcing one’s intentions. In \emph{F.E.A.R.}, for example, enemies comment on their maneuvers via radio transmissions, thereby revealing their plans to the players \cite{orkin2006}. In this sense, errors and announcements are not flaws, but rather serve to make behavior predictable and give players a fair chance.
+
+Believability is difficult to measure in this context, as it depends on players’ expectations, as described in Section~\ref{sec:introduction} \cite{warpefelt2017}. One approach to evaluating this is through Turing tests for game characters, such as those conducted in the \emph{BotPrize} competition. In that competition, players had to decide, on the basis of behavior, whether an opponent was controlled by a human or by a program \cite{hingston2009}. At the same time, expectations rise with the realism of the portrayal. The more human-like a character looks, the more noticeable minor inconsistencies in its behavior become, and the more unfamiliar it seems. This effect is known as the \emph{Uncanny Valley} \cite{mori2012}. For NPC AI, this means that the effort required to achieve believable behavior increases with the graphical quality of a game.
 
 \subsection{Development and Debugging}
-\begin{itemize}
-  \item Visual, inspectable systems (FSMs, behavior trees) are easier to
-        debug and are favored in large teams~\cite{colledanchise2018}.
-  \item Planners and learned models are harder to explain: it is not always
-        clear \emph{why} an NPC chose an action.
-  \item Tooling and editor support often decide which technique a studio
-        adopts, more than raw capability.
-\end{itemize}
 
-\subsection{Discussion}
-\begin{itemize}
-  \item No single technique wins on all criteria; the right choice depends
-        on genre, team size and the role of the NPC.
-  \item The trend is toward hybrids that combine designer-friendly
-        structure with local autonomy.
-  \item These trade-offs frame the current experiments discussed next.
-\end{itemize}
+In addition to player requirements, development conditions also determine which methods are used.
+ Visual and easily understandable systems such as state machines and behavior trees can be represented in graphical editors and observed during gameplay. Malfunctioning can then be traced directly back to a specific state or node, which is why these methods are preferred, especially in large teams \cite{colledanchise2018}. With planners and trained models, this is significantly more difficult.
+ Since behavior emerges only from a search or from trained weights, it is not always clear why a character chose a particular action. With neural networks, such an explanation is often possible only with considerable additional effort.
+
+In practice, the choice of method is therefore frequently determined by tools and editor support—often to a greater extent than by its theoretical performance \cite{rabin2013}. The widespread use of behavior trees can be attributed in no small part to the fact that they are firmly integrated into common engines such as Unreal (see Section~\ref{sec:modern}). By contrast, a method that cannot be integrated into a studio’s existing workflow faces an uphill battle, even if it delivers convincing results in experiments.
+
+/subsection{Summary}
+
+The comparison shows that no single method meets all criteria equally well. Which method is appropriate depends on the genre, the size of the team, and the role a character plays in the game. A simple state machine is sufficient for a background character, while a central antagonist or companion may justify the use of more complex methods. Development is therefore moving toward hybrid architectures that combine a design-friendly basic structure with local autonomy. The conflict between adaptability on the one hand and control and traceability on the other, as shown in Table~\ref{tab:comparison}, also characterizes current experiments with machine learning and large language models. These promise an unprecedented level of adaptability but simultaneously intensify the conflicting goals described here. The following section~\ref{sec:experiments} examines the extent to which these conflicts can be resolved.
+
+% TODO: Believability vs Credibility
